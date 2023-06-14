@@ -24,8 +24,9 @@ func (t *TunnelService) Init() {
 	tunnels = make(map[int]chan Tunnel)
 }
 
-func (t *TunnelService) GetTunnel(i int) chan Tunnel {
-	return tunnels[i]
+func (t *TunnelService) GetTunnelChannel(i int) (chan Tunnel, bool) {
+	tunnelchan, ok := tunnels[i]
+	return tunnelchan, ok
 }
 
 func (t *TunnelService) MakeTunnelChannel() (chan Tunnel, int) {
