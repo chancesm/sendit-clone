@@ -4,6 +4,9 @@ Clone of Sendit.sh by @anthdm. Stream files from ssh to http with no file storag
 # TODO:
 - [x] Setup base repo with dev container and github codespace
 - [x] Setup Base Project following this guide: https://www.youtube.com/watch?v=RK5xh7xH1Jw&t=26s
-- [ ] Split into multiple files/packages
-- [ ] Add Web Framework (Echo, Fiber, ?)
-- [ ] Add Web View with file download (keep current functionality behind a `raw` query param or route param)
+- [x] Split into multiple files/packages
+- [x] Add Web Framework (Echo, Fiber, ?)
+- [x] Add Web View with file download (keep current functionality behind a `raw` query param or route param)
+- [ ] Add Styles :)
+- [ ] Update SSH service (add colors)
+- [ ] Update Http Service (zip file? better ids)
