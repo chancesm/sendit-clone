@@ -1,67 +1,63 @@
 package httpservice
 
 import (
-	"html/template"
-	"io"
-	"net/http"
+	"log"
 	"strconv"
 
 	"github.com/chancesm/sendit-clone/services/tunnel"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/template/html/v2"
 )
 
 type HttpService struct {
 	ts *tunnel.TunnelService
-	e  *echo.Echo
-}
-
-type Template struct {
-	templates *template.Template
-}
-
-func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
+	f  *fiber.App
 }
 
 func NewHttpService(t *tunnel.TunnelService) *HttpService {
-	e := echo.New()
 
+	engine := html.New("./views", ".html")
+
+	f := fiber.New(fiber.Config{
+		Views: engine,
+	})
 	h := &HttpService{
 		ts: t,
 	}
-	tmp := &Template{
-		templates: template.Must(template.ParseGlob("views/*.html")),
-	}
-	// Register middleware androute handlers and add server to service
-	e.Use(middleware.Logger())
-	e.Renderer = tmp
-	e.GET("/", h.rootHandler)
-	e.GET("/:id", h.webHandler)
-	e.GET("/:id/raw", h.fileHandler)
-	e.GET("/favicon.ico", echo.NotFoundHandler)
-	h.e = e
 
+	// Register middleware androute handlers and add server to service
+
+	f.Use(logger.New())
+	f.Get("/", h.rootHandler)
+	f.Get("/file/:id", h.webHandler)
+	f.Get("/file/:id/raw", h.fileHandler)
+
+	// 404 Handler
+	f.Use(func(c *fiber.Ctx) error {
+		return c.SendStatus(404) // => 404 "Not Found"
+	})
+	h.f = f
 	return h
 }
 
 func (h *HttpService) Run() {
-	h.e.Logger.Fatal(h.e.Start(":1337"))
+	log.Fatal(h.f.Listen(":1337"))
 }
 
-func (h *HttpService) fileHandler(c echo.Context) error {
+func (h *HttpService) fileHandler(c *fiber.Ctx) error {
 
-	idstr := c.Param("id")
+	idstr := c.Params("id")
 	id, _ := strconv.Atoi(idstr)
 
 	tnlchan, found := h.ts.GetTunnelChannel(id)
 	if !found {
-		return c.String(http.StatusNotFound, "Tunnel Not Found")
+		return c.Status(404).SendString("Tunnel Not Found")
 	}
 
 	donech := make(chan struct{})
 	tnlchan <- tunnel.Tunnel{
-		Writer:   c.Response().Writer,
+		Writer:   c.Response().BodyWriter(),
 		DoneChan: donech,
 	}
 	<-donech
@@ -69,13 +65,18 @@ func (h *HttpService) fileHandler(c echo.Context) error {
 	return nil
 }
 
-func (h *HttpService) webHandler(c echo.Context) error {
-	idstr := c.Param("id")
+func (h *HttpService) webHandler(c *fiber.Ctx) error {
+	idstr := c.Params("id")
 	id, _ := strconv.Atoi(idstr)
-	pagedata := struct{ ID int }{ID: id}
 
-	return c.Render(http.StatusOK, "file.html", pagedata)
+	return c.Render("file", fiber.Map{
+		"Title": "Get a File!",
+		"ID":    id,
+	})
 }
-func (h *HttpService) rootHandler(c echo.Context) error {
-	return c.Render(http.StatusOK, "index.html", nil)
+
+func (h *HttpService) rootHandler(c *fiber.Ctx) error {
+	return c.Render("index", fiber.Map{
+		"Title": "Sendit Home",
+	})
 }
