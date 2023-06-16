@@ -6,6 +6,7 @@ import (
 
 	"github.com/chancesm/sendit-clone/services/tunnel"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/template/html/v2"
 )
@@ -29,6 +30,7 @@ func NewHttpService(t *tunnel.TunnelService) *HttpService {
 	// Register middleware androute handlers and add server to service
 
 	f.Use(logger.New())
+	f.Use(favicon.New())
 	f.Get("/", h.rootHandler)
 	f.Get("/file/:id", h.webHandler)
 	f.Get("/file/:id/raw", h.fileHandler)
