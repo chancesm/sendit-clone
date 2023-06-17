@@ -1,14 +1,40 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>Here's a File for you!</title>
-</head>
+{{template "partials/head" .}}
 <body>
+    {{template "partials/nav" .}}
     <h1>Someone sent you a file!</h1>
     <h3>File: {{.ID}} </h3>
-    <a href="/{{.ID}}/raw" download="{{.ID}}">Download</a>
+    <a href="/file/{{.ID}}/raw" download="{{.ID}}">Download</a>
+    {{template "partials/footer" .}}
 </body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+{{template "partials/head" .}}
+
+<body class="relative flex flex-col min-h-screen bg-gray-800 text-white">
+    {{template "partials/nav" .}}
+
+    <main class="flex flex-1 flex-col justify-center items-center text-white">
+        <div
+            class="relative bg-slate-700 px-6 pb-8 pt-10 shadow-xl ring-1 ring-stone-900/5 rounded-2xl mx-10 max-w-fit">
+            <h1 class="text-2xl text-orange-400 ">Someone sent you a file!</h1>
+            <div class="divide-y divide-white/50">
+                <div class="space-y-6 py-8 text-base leading-7 items-center flex flex-col">
+                    <a href="/file/{{.ID}}/raw" download="{{.ID}}" class="bg-sky-500 rounded-none px-3 py-2 items-center">Download It!</a>
+                </div>
+                <div class="pt-8 text-base font-semibold leading-7">
+                    <p class="">Want to know how it works?</p>
+                    <p>
+                        <a href="https://github.com/chancesm/sendit-clone" class="text-sky-500 hover:text-sky-600">Read
+                            the Code →</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+    {{template "partials/footer" .}}
+</body>
+
 </html>
