@@ -2,7 +2,6 @@ package httpservice
 
 import (
 	"log"
-	"strconv"
 
 	"github.com/chancesm/sendit-clone/services/tunnel"
 	"github.com/gofiber/fiber/v2"
@@ -32,8 +31,8 @@ func NewHttpService(t *tunnel.TunnelService) *HttpService {
 	f.Use(logger.New())
 	f.Use(favicon.New())
 	f.Get("/", h.rootHandler)
-	f.Get("/file/:id", h.webHandler)
-	f.Get("/file/:id/raw", h.fileHandler)
+	f.Get("/f/:id", h.webHandler)
+	f.Get("/f/:id/raw", h.fileHandler)
 
 	// 404 Handler
 	f.Use(func(c *fiber.Ctx) error {
@@ -49,8 +48,7 @@ func (h *HttpService) Run() {
 
 func (h *HttpService) fileHandler(c *fiber.Ctx) error {
 
-	idstr := c.Params("id")
-	id, _ := strconv.Atoi(idstr)
+	id := c.Params("id")
 
 	tnlchan, found := h.ts.GetTunnelChannel(id)
 	if !found {
@@ -68,8 +66,7 @@ func (h *HttpService) fileHandler(c *fiber.Ctx) error {
 }
 
 func (h *HttpService) webHandler(c *fiber.Ctx) error {
-	idstr := c.Params("id")
-	id, _ := strconv.Atoi(idstr)
+	id := c.Params("id")
 
 	return c.Render("file", fiber.Map{
 		"Title": "Get a File!",
